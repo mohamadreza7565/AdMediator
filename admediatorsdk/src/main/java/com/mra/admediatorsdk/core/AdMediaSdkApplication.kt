@@ -27,7 +27,7 @@ class AdMediaSdkApplication : Application() {
     /**
      * Initialize dependency injection with koin library
      */
-    private fun initializeKoin() {
+   private fun initializeKoin() {
         startKoin {
             androidContext(this@AdMediaSdkApplication)
             modules(

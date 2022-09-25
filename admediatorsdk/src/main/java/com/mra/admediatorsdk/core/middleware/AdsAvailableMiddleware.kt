@@ -34,25 +34,33 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
     ) {
         var findAvailableAd = false
         var position = 0
-        do {
-            requestAds(waterfalls[position]) { available, adId ->
-                if (available && adId != null && WaterfallName.values()
-                        .find { it.value == waterfalls[position].name } != null
-                ) {
-                    findAvailableAd = true
-                    onAvailableAd.invoke(
-                        adId,
-                        waterfalls[position].id,
-                        WaterfallName.values().find { it.value == waterfalls[position].name }!!
-                    )
-                } else {
-                    position++
-                    if (position == waterfalls.size) {
-                        onNotAvailableAd.invoke()
+
+        if (waterfalls.isEmpty()) {
+            if (position == waterfalls.size) {
+                onNotAvailableAd.invoke()
+            }
+        } else {
+            do {
+                requestAds(waterfalls[position]) { available, adId ->
+                    if (available && adId != null && WaterfallName.values()
+                            .find { it.value == waterfalls[position].name } != null
+                    ) {
+                        findAvailableAd = true
+                        onAvailableAd.invoke(
+                            adId,
+                            waterfalls[position].id,
+                            WaterfallName.values().find { it.value == waterfalls[position].name }!!
+                        )
+                    } else {
+                        position++
+                        if (position == waterfalls.size) {
+                            onNotAvailableAd.invoke()
+                        }
                     }
                 }
-            }
-        } while (!findAvailableAd && position < waterfalls.size)
+            } while (!findAvailableAd && position < waterfalls.size)
+        }
+
 
     }
 
@@ -68,6 +76,8 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
             WaterfallName.UNIT_ADS.value -> requestUnityAds(waterfall.id, callback)
 
             WaterfallName.TAPSELL.value -> requestTapsellAd(waterfall.id, callback)
+
+            else -> callback.invoke(false,null)
         }
     }
 
