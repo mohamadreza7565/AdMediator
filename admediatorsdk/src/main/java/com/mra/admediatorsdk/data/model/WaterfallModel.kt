@@ -4,8 +4,6 @@ package com.mra.admediatorsdk.data.model
 import androidx.room.*
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.mra.admediatorsdk.data.database.conerter.toEnum
-import com.mra.admediatorsdk.data.enums.WaterfallName
 import com.mra.admediatorsdk.data.enums.WaterfallType
 import org.jetbrains.annotations.NotNull
 
@@ -42,12 +40,3 @@ data class Waterfall(
     @Expose
     var expireTimestamp: Long = 0
 )
-
-@ProvidedTypeConverter
-class WaterfallConverter {
-    @TypeConverter
-    fun myWaterfallNameToTnt(value: WaterfallName) = value.ordinal
-
-    @TypeConverter
-    fun intToWaterfallNameEnum(value: Int) = value.toEnum<WaterfallName>()
-}

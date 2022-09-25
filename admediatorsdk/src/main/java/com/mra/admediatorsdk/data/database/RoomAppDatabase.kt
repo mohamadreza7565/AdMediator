@@ -4,10 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import com.mra.admediatorsdk.data.database.dao.WaterfallDao
 import com.mra.admediatorsdk.data.model.Waterfall
-import com.mra.admediatorsdk.data.model.WaterfallConverter
 
 
 /**
