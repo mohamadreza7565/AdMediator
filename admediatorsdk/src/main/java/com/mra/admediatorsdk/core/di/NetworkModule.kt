@@ -67,7 +67,7 @@ fun getOkHttpClient(): OkHttpClient {
 
             val buffer: Buffer = source.buffer()
             val responseBodyString: String = buffer.clone().readString(Charset.forName("UTF-8"))
-            Log.e("Retrofit", "Response -> $responseBodyString")
+            println("Retrofit : Response -> $responseBodyString")
 
             return@addInterceptor response
         }
