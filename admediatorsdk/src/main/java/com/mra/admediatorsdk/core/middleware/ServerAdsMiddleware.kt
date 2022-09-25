@@ -8,6 +8,7 @@ import com.mra.admediatorsdk.data.enums.WaterfallName
 import com.mra.admediatorsdk.data.model.Waterfall
 import com.mra.admediatorsdk.data.repo.AdRepo
 import com.mra.admediatorsdk.global.utils.convertListToArrayList
+import com.mra.admediatorsdk.interfaces.IAdMediatorInitializer
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestAdListener
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestShowAd
 import com.unity3d.ads.IUnityAdsShowListener
@@ -60,19 +61,25 @@ class ServerAdsMiddleware {
     /**
      * Get list of adNetworks from api
      */
-    fun getAdNetworks() {
+    fun getAdNetworks(listener: IAdMediatorInitializer? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             mAdRepo.getAdNetworks().collect {
                 when (it.status) {
+                    CustomResult.Status.LOADING -> listener?.onInitializeStart()
                     CustomResult.Status.SUCCESS -> {
                         it.data?.adNetworks?.let {
                             AdMediator.adNetworks = it
+                            listener?.onInitializeResponse()
                         }
                     }
-                    CustomResult.Status.ERROR -> Log.e(
-                        "AdMediator",
-                        "requestAd -> ${it.errorMessage} "
-                    )
+                    CustomResult.Status.ERROR -> {
+                        Log.e(
+                            "AdMediator",
+                            "requestAd -> ${it.errorMessage} "
+                        )
+                        listener?.onInitializeFailure(it.errorMessage)
+                    }
+
                 }
             }
         }
@@ -187,7 +194,7 @@ class ServerAdsMiddleware {
         zoneId: String
     ) = object : TapsellAdShowListener() {
         override fun onOpened() {
-          listenerShowAd.onOpenAd()
+            listenerShowAd.onOpenAd()
         }
 
         override fun onClosed() {

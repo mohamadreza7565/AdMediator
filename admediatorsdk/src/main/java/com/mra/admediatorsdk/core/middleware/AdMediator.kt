@@ -3,9 +3,9 @@ package com.mra.admediatorsdk.core.middleware
 import android.app.Activity
 import com.mra.admediatorsdk.data.enums.WaterfallName
 import com.mra.admediatorsdk.data.model.AdNetwork
+import com.mra.admediatorsdk.interfaces.IAdMediatorInitializer
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestAdListener
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestShowAd
-
 
 
 /**
@@ -25,8 +25,8 @@ object AdMediator {
      * and
      * initialize they
      */
-    fun initialize() {
-        server.getAdNetworks()
+    fun initialize(listener: IAdMediatorInitializer? = null) {
+        server.getAdNetworks(listener)
     }
 
     /**
