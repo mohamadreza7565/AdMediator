@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AampleAdvertise</string>
+    <string name="request_and_show_ad">Request and show Ad</string>
 </resources>
