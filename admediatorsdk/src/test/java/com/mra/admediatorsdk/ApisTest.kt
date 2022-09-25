@@ -3,6 +3,8 @@ package com.mra.admediatorsdk
 
 import com.google.gson.GsonBuilder
 import com.mra.admediatorsdk.core.di.createBaseNetworkClient
+import com.mra.admediatorsdk.core.middleware.AdsAvailableMiddleware
+import com.mra.admediatorsdk.data.model.Waterfall
 import com.mra.admediatorsdk.data.remote.api.AdApiService
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.*
@@ -39,5 +41,6 @@ class ApisTest {
         val response = api.getWaterfalls()
         assertEquals(response.code(), 200)
     }
+
 
 }

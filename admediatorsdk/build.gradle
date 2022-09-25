@@ -87,6 +87,9 @@ dependencies {
     def jUnitVersion = '5.9.0'
     testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$jUnitVersion"
+    
+    testImplementation 'androidx.test:core:1.4.0'
 
+    testImplementation 'org.mockito:mockito-core:3.10.0'
 
 }
