@@ -13,11 +13,20 @@ import org.koin.java.KoinJavaComponent.inject
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  Gets the list of waterfalls and checks if this ad is available or not
+ *
  */
 class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : CheckAdsMiddleware() {
 
     private val mContext: Context by inject(Context::class.java)
 
+    /**
+     * Check ad is available or not
+     *
+     *
+     *
+     */
     override fun check(
         onAvailableAd: (adId: String, zoneId: String, waterfallName: WaterfallName) -> Unit,
         onNotAvailableAd: () -> Unit,
@@ -42,7 +51,7 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
                     }
                 }
             }
-        } while (!findAvailableAd && position == waterfalls.size)
+        } while (!findAvailableAd && position < waterfalls.size)
 
     }
 
