@@ -9,6 +9,9 @@ import org.koin.dsl.module
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  Dependency injection of repositories
+ *
  */
 val repositoryModule = module {
     single {

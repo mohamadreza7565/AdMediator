@@ -24,8 +24,9 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
     /**
      * Check ad is available or not
      *
-     *
-     *
+     * A loop runs as long as the number of waterfalls list and continues until one of the following conditions occurs:
+     * 1- Find an available ad
+     * 2- Check all the items in the list and find nothing
      */
     override fun check(
         onAvailableAd: (adId: String, zoneId: String, waterfallName: WaterfallName) -> Unit,
@@ -56,22 +57,24 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
     }
 
 
+    /**
+     * Checking the type of waterfall and requesting it to receive advertisement information
+     */
     private fun requestAds(
         waterfall: Waterfall,
         callback: (available: Boolean, adId: String?) -> Unit
     ) {
         when (waterfall.name) {
-            WaterfallName.UNIT_ADS.value -> requestUnityAds(waterfall.id) { available, adId ->
-                callback.invoke(available, adId)
-            }
+            WaterfallName.UNIT_ADS.value -> requestUnityAds(waterfall.id, callback)
 
-            WaterfallName.TAPSELL.value -> requestTapsellAd(waterfall.id) { available, adId ->
-                callback.invoke(available, adId)
-            }
+            WaterfallName.TAPSELL.value -> requestTapsellAd(waterfall.id, callback)
         }
     }
 
 
+    /**
+     * Request to Tapsell to get promotion information
+     */
     private fun requestTapsellAd(
         zoneId: String,
         callback: (available: Boolean, adId: String?) -> Unit
@@ -81,26 +84,33 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
             mContext,
             zoneId,
             TapsellAdRequestOptions(),
-            object : TapsellAdRequestListener() {
-                override fun onAdAvailable(adId: String) {
-                    callback.invoke(true, adId)
-                }
-
-                override fun onError(message: String) {
-                    callback.invoke(false, null)
-                }
-            })
+            iTapsellRequestAdListener(callback)
+        )
     }
 
+
+    private fun iTapsellRequestAdListener(callback: (available: Boolean, adId: String?) -> Unit) =
+        object : TapsellAdRequestListener() {
+            override fun onAdAvailable(adId: String) {
+                callback.invoke(true, adId)
+            }
+
+            override fun onError(message: String) {
+                callback.invoke(false, null)
+            }
+        }
+
+
+    /**
+     * Request to UnityAds to get promotion information
+     */
     private fun requestUnityAds(
         zoneId: String,
         callback: (available: Boolean, adId: String?) -> Unit
     ) {
 
         if (UnityAds.isInitialized())
-            UnityAds.load(zoneId, iUnityAdsLoadListener { available, adId ->
-                callback.invoke(available, adId)
-            })
+            UnityAds.load(zoneId, iUnityAdsLoadListener(callback))
         else
             callback.invoke(false, null)
 

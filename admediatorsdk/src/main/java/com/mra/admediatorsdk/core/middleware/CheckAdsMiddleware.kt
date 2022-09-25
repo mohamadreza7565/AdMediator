@@ -9,7 +9,7 @@ import com.mra.admediatorsdk.data.enums.WaterfallName
 
 
 /**
- * Base middleware class.
+ * Base middleware class for check ad
  */
 abstract class CheckAdsMiddleware {
 

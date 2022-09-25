@@ -10,9 +10,18 @@ import retrofit2.Response
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ * Using this class, a request is sent to the server
+ * and
+ * the final result is returned using CoroutinesFlow
+ *
  */
 abstract class BaseCoroutinesDataSource(private val mContext: Context) {
 
+
+    /**
+     * Check result from server and return it
+     */
     private suspend fun <T> getResult(call: suspend () -> Response<T>): CustomResult<T> {
         try {
             val response = call()
@@ -37,6 +46,10 @@ abstract class BaseCoroutinesDataSource(private val mContext: Context) {
         }
     }
 
+
+    /**
+     * Call api and emit it with CoroutinesFlow
+     */
     protected fun <T> callApi(
         times: Int = 2, initialDelay: Long = 100, maxDelay: Long = 10000,
         factor: Double = 2.0, call: suspend () -> Response<T>

@@ -11,19 +11,35 @@ import com.mra.admediatorsdk.interfaces.IAdMediatorRequestShowAd
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  Requests related to receiving and displaying advertisements are made in this class
+ *
  */
 object AdMediator {
 
     lateinit var adNetworks: MutableList<AdNetwork>
     private val server = ServerAdsMiddleware()
 
+    /**
+     * Get adNetworks from server
+     * and
+     * initialize they
+     */
     fun initialize() {
         server.getAdNetworks()
     }
 
-
+    /**
+     * If AdMediator is initialize return true
+     */
     fun isInitialized() = AdMediator::adNetworks.isInitialized
 
+
+    /**
+     * Get waterfalls from server or database
+     *  and
+     *  return available ad
+     */
     fun requestAd(listener: IAdMediatorRequestAdListener) {
         if (isInitialized()) {
             server.requestAd(listener)
@@ -33,6 +49,10 @@ object AdMediator {
 
     }
 
+
+    /**
+     * Show advertise
+     */
     fun showAd(
         maActivity: Activity,
         adId: String,

@@ -23,12 +23,13 @@ class GlobalFunction private constructor(){
                 return myInstance!!
             }
 
-        /**
-         * If activity and service is running return true
-         */
-
     }
 
+
+
+    /**
+     * If network is available return true
+     */
     val isNetworkAvailable: Boolean
         get() {
             val mContext: Context by KoinJavaComponent.inject(Context::class.java)

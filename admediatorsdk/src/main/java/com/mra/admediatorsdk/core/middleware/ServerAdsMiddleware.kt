@@ -10,7 +10,6 @@ import com.mra.admediatorsdk.data.repo.AdRepo
 import com.mra.admediatorsdk.global.utils.convertListToArrayList
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestAdListener
 import com.mra.admediatorsdk.interfaces.IAdMediatorRequestShowAd
-import com.unity3d.ads.IUnityAdsLoadListener
 import com.unity3d.ads.IUnityAdsShowListener
 import com.unity3d.ads.UnityAds
 import ir.tapsell.sdk.*
@@ -22,6 +21,9 @@ import org.koin.java.KoinJavaComponent
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  The request to the server to receive advertisements and check its availability and its final display is done in this class
+ *
  */
 class ServerAdsMiddleware {
 
@@ -29,6 +31,10 @@ class ServerAdsMiddleware {
     private val mAdRepo: AdRepo by KoinJavaComponent.inject(AdRepo::class.java)
     private val mContext: Context by KoinJavaComponent.inject(Context::class.java)
 
+
+    /**
+     * Set waterfalls into middleware for check availability
+     */
     private fun setMiddleware(waterfalls: ArrayList<Waterfall>) {
         val middleware = CheckAdsMiddleware.newInstance(
             AdsAvailableMiddleware(getAvailableWaterfalls(waterfalls)),
@@ -36,6 +42,10 @@ class ServerAdsMiddleware {
         this.middleware = middleware
     }
 
+
+    /**
+     * Get list of available waterfalls in adNetwork
+     */
     private fun getAvailableWaterfalls(waterfalls: ArrayList<Waterfall>): ArrayList<Waterfall> {
         val availableWaterfalls: ArrayList<Waterfall> = ArrayList()
         waterfalls.forEach { _waterfall ->
@@ -46,6 +56,10 @@ class ServerAdsMiddleware {
         return availableWaterfalls
     }
 
+
+    /**
+     * Get list of adNetworks from api
+     */
     fun getAdNetworks() {
         CoroutineScope(Dispatchers.IO).launch {
             mAdRepo.getAdNetworks().collect {
@@ -64,6 +78,12 @@ class ServerAdsMiddleware {
         }
     }
 
+    /**
+     * Check list of saved waterfalls into DB is expired or not
+     *
+     * If all of the saved waterfalls is expired get waterfalls from api and replace they
+     *
+     */
     fun requestAd(listener: IAdMediatorRequestAdListener) {
 
         val availableDbWaterfall = mAdRepo.getAvailableRewardedWaterfall()
@@ -91,6 +111,10 @@ class ServerAdsMiddleware {
         )
     }
 
+
+    /**
+     * Get rewarded waterfalls from api
+     */
     private fun getRewardedWaterfalls(listener: IAdMediatorRequestAdListener) {
         CoroutineScope(Dispatchers.IO).launch {
             mAdRepo.getRewardedWaterfall().collect {
@@ -115,6 +139,10 @@ class ServerAdsMiddleware {
         }
     }
 
+
+    /**
+     * Check waterfall ad type and show it
+     */
     fun showAd(
         mActivity: Activity,
         adId: String,
@@ -127,7 +155,7 @@ class ServerAdsMiddleware {
             WaterfallName.UNIT_ADS -> UnityAds.show(
                 mActivity,
                 adId,
-                showListener(listenerShowAd)
+                showUnityListener(listenerShowAd)
             )
             else -> {
                 listenerShowAd.onShowAdFailure("Waterfall not supported")
@@ -136,6 +164,9 @@ class ServerAdsMiddleware {
     }
 
 
+    /**
+     * Show tapsell ad
+     */
     private fun showTapsellAds(
         adId: String,
         zoneId: String,
@@ -147,59 +178,33 @@ class ServerAdsMiddleware {
             zoneId,
             adId,
             TapsellShowOptions(),
-            object : TapsellAdShowListener() {
-                override fun onOpened() {
-
-                }
-
-                override fun onClosed() {
-                    listenerShowAd.onShowAdClosed(zoneId)
-                }
-
-                override fun onError(message: String) {
-                    listenerShowAd.onShowAdFailure(message)
-                }
-
-                override fun onRewarded(completed: Boolean) {
-                    listenerShowAd.onShowAdComplete("Completed")
-                }
-            })
+            showTapsellListener(listenerShowAd, zoneId)
+        )
     }
 
-    private fun requestUnityAds(
-        mActivity: Activity,
-        zoneId: String,
-        listenerShowAd: IAdMediatorRequestShowAd
-    ) {
-
-        if (UnityAds.isInitialized())
-            UnityAds.load(zoneId, iUnityAdsLoadListener(mActivity, listenerShowAd))
-        else
-            listenerShowAd.onShowAdFailure("Unity ads not initialized")
-
-
-    }
-
-    private fun iUnityAdsLoadListener(
-        mActivity: Activity,
-        listenerShowAd: IAdMediatorRequestShowAd
-    ) =
-        object : IUnityAdsLoadListener {
-            override fun onUnityAdsAdLoaded(p0: String?) {
-                UnityAds.show(mActivity, p0, showListener(listenerShowAd))
-            }
-
-            override fun onUnityAdsFailedToLoad(
-                p0: String?,
-                p1: UnityAds.UnityAdsLoadError?,
-                p2: String?
-            ) {
-                listenerShowAd.onShowAdFailure(p0)
-            }
-
+    private fun showTapsellListener(
+        listenerShowAd: IAdMediatorRequestShowAd,
+        zoneId: String
+    ) = object : TapsellAdShowListener() {
+        override fun onOpened() {
+          listenerShowAd.onOpenAd()
         }
 
-    private fun showListener(listenerShowAd: IAdMediatorRequestShowAd): IUnityAdsShowListener =
+        override fun onClosed() {
+            listenerShowAd.onShowAdClosed(zoneId)
+        }
+
+        override fun onError(message: String) {
+            listenerShowAd.onShowAdFailure(message)
+        }
+
+        override fun onRewarded(completed: Boolean) {
+            listenerShowAd.onShowAdComplete("Completed")
+        }
+    }
+
+
+    private fun showUnityListener(listenerShowAd: IAdMediatorRequestShowAd): IUnityAdsShowListener =
         object : IUnityAdsShowListener {
             override fun onUnityAdsShowFailure(
                 p0: String?,
@@ -210,7 +215,7 @@ class ServerAdsMiddleware {
             }
 
             override fun onUnityAdsShowStart(p0: String?) {
-
+                listenerShowAd.onShowAdStart()
             }
 
             override fun onUnityAdsShowClick(p0: String?) {

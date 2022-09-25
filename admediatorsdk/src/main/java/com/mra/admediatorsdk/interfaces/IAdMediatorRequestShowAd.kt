@@ -15,6 +15,8 @@ interface IAdMediatorRequestShowAd {
 
     fun onShowAdClick(message:String?)
 
+    fun onOpenAd()
+
     fun onShowAdComplete(message:String?)
 
     fun onShowAdClosed(message:String?)

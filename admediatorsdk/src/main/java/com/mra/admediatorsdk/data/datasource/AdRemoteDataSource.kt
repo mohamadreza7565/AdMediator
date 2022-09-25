@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.flow
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  Operations related to the network layer of the program are included in this class
+ *
  */
 class AdRemoteDataSource(mContext: Context, private val adApiService: AdApiService) :
     BaseCoroutinesDataSource(mContext) {

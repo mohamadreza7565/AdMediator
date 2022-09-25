@@ -23,6 +23,10 @@ class AdMediaSdkApplication : Application() {
         initializeKoin()
     }
 
+
+    /**
+     * Initialize dependency injection with koin library
+     */
     private fun initializeKoin() {
         startKoin {
             androidContext(this@AdMediaSdkApplication)
@@ -34,6 +38,10 @@ class AdMediaSdkApplication : Application() {
         }
     }
 
+
+    /**
+     * Initialize unity ads library
+     */
     private fun initializeUnityAds() {
         UnityAds.initialize(
             this,
@@ -57,6 +65,10 @@ class AdMediaSdkApplication : Application() {
             })
     }
 
+
+    /**
+     * Initialize tapsell library
+     */
     private fun initializeTapsell() {
         Tapsell.initialize(
             this,

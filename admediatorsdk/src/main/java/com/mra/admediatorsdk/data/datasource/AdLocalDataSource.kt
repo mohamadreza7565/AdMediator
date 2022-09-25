@@ -8,10 +8,18 @@ import java.util.*
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  The operations related to the program's internal memory are in this class
+ *
  */
 class AdLocalDataSource(private val roomAppDatabase: RoomAppDatabase) {
 
 
+    /**
+     * Set savedTimeStamp and expireTimeStamp for waterfalls
+     * and
+     * save they into database
+     */
     fun saveWaterfalls(waterfalls: MutableList<Waterfall>) {
 
         waterfalls.forEach { waterfall ->
@@ -26,6 +34,10 @@ class AdLocalDataSource(private val roomAppDatabase: RoomAppDatabase) {
         }
     }
 
+
+    /**
+     * Get the list of waterfalls that were saved less than an hour ago
+     */
     fun findAvailableWaterfalls(): List<Waterfall> {
         val timeStamp = Calendar.getInstance().time.time
         return roomAppDatabase.getWaterfallDao().getAllAvailable(timeStamp)

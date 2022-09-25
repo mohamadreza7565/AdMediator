@@ -37,19 +37,21 @@ private fun retrofitClient(gson: Gson, baseUrl: String): Retrofit =
     Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(getOkHttpClient())
-/*              .addConverterFactory(NullOnEmptyConverterFactory())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())*/
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
 fun getOkHttpClient(): OkHttpClient {
-//        installServiceProviderIfNeeded(context);
+
     val mContext: Context by KoinJavaComponent.inject(Context::class.java)
 
     val okHttpClient = OkHttpClient.Builder()
 
     setTimeOutToOkHttpClient(okHttpClient)
 
+
+    /**
+     * Log response when app is debug mode
+     */
     if (BuildConfig.DEBUG) {
         okHttpClient.addInterceptor {
             val oldRequest = it.request()
@@ -132,39 +134,4 @@ private fun setTimeOutToOkHttpClient(okHttpClientBuilder: OkHttpClient.Builder) 
     }
 
 
-/*    private void installServiceProviderIfNeeded(Context context) {
-        try {
-            ProviderInstaller.installIfNeeded(context);
-        } catch (GooglePlayServicesRepairableException e) {
-            e.printStackTrace();
-
-            // Prompt the user to install/update/enable Google Play services.
-            GooglePlayServicesUtil.showErrorNotification(e.getConnectionStatusCode(), context);
-
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-
-private fun getCache(mContext: Context) = Cache(getFile(mContext), 10 * 1000 * 1000) //10MB cache;
-
-private fun getFile(mContext: Context) = File(mContext.cacheDir, "okhttp_cache").apply {
-    mkdirs()
-}
-
 fun getGson() = GsonBuilder().create()
-
-class NullOnEmptyConverterFactory : Converter.Factory() {
-    override fun responseBodyConverter(
-        type: Type?,
-        annotations: Array<Annotation?>?,
-        retrofit: Retrofit
-    ): Converter<ResponseBody, Any?> {
-        val delegate: Converter<ResponseBody, Any> =
-            retrofit.nextResponseBodyConverter(this, type, annotations)
-        return Converter { body ->
-            if (body.contentLength() == 0L) null else delegate.convert(body)
-        }
-    }
-}

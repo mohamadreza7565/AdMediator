@@ -11,6 +11,9 @@ import retrofit2.Retrofit
 /**
  * Create by Mohammadreza Allahgholi
  *  Site: https://seniorandroid.ir
+ *
+ *  Dependency injection of methods required by the program
+ *
  */
 private val mGson = getGson()
 val baseTapsellRetrofit: Retrofit = createBaseNetworkClient(gson = mGson,BuildConfig.TAPSELL_BASE_URL)

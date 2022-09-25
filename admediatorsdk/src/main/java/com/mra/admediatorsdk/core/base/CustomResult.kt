@@ -1,5 +1,12 @@
 package com.mra.admediatorsdk.core.base
 
+/**
+ * Create by Mohammadreza Allahgholi
+ *  Site: https://seniorandroid.ir
+ *
+ *  Result data class with status
+ *
+ */
 data class CustomResult<out T>(
     val status: Status,
     val data: T? = null,
