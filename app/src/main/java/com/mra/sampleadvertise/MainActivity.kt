@@ -51,6 +51,10 @@ class MainActivity : AppCompatActivity(), IAdMediatorRequestAdListener, IAdMedia
         Log.i(TAG, "Click ad")
     }
 
+    override fun onOpenAd() {
+        Log.i(TAG, "Open ad")
+    }
+
     override fun onShowAdComplete(message: String?) {
         Log.i(TAG, "Complete show ad -> $message")
     }

@@ -13,6 +13,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "AampleAdvertise"
+rootProject.name = "SampleAdvertise"
 include ':app'
 include ':admediatorsdk'
