@@ -44,6 +44,7 @@ abstract class BaseCoroutinesDataSource(private val mContext: Context) {
 
         var loopTimes = times
         var currentDelay = initialDelay
+        emit(CustomResult.loading())
         loop@ while (loopTimes - 1 != 0) {
 
             loopTimes--

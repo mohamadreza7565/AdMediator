@@ -82,6 +82,7 @@ class ServerAdsMiddleware {
         setMiddleware(availableDbWaterfall)
         middleware?.check(
             onAvailableAd = { adId, zoneId, waterfallName ->
+                listener.onRequestAdStart()
                 listener.onRequestAdResponse(adId, zoneId, waterfallName)
             },
             onNotAvailableAd = {

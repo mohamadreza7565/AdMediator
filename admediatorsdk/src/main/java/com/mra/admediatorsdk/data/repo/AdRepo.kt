@@ -20,15 +20,6 @@ class AdRepo(
     suspend fun getAdNetworks() = remoteDataSource.getAdNetworks()
 
     suspend fun getRewardedWaterfall() = flow {
-
-//        .map { _result ->
-//        if (_result.status == CustomResult.Status.SUCCESS) {
-//            _result.data?.let {
-//                localDataSource.saveWaterfalls(it.waterfall)
-//            }
-//        }
-//    }
-
         remoteDataSource.getRewardedWaterfall().collect { _result ->
             if (_result.status == CustomResult.Status.SUCCESS)
                 _result.data?.let {
