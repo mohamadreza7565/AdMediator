@@ -1,8 +1,13 @@
 package com.mra.admediatorsdk.data.datasource
 
 import android.util.Log
+import com.mra.admediatorsdk.core.base.CustomResult
 import com.mra.admediatorsdk.data.database.RoomAppDatabase
+import com.mra.admediatorsdk.data.enums.WaterfallType
 import com.mra.admediatorsdk.data.model.Waterfall
+import com.mra.admediatorsdk.data.model.WaterfallModel
+import com.mra.admediatorsdk.global.utils.convertListToArrayList
+import kotlinx.coroutines.flow.flow
 import java.util.*
 
 /**
@@ -38,9 +43,11 @@ class AdLocalDataSource(private val roomAppDatabase: RoomAppDatabase) {
     /**
      * Get the list of waterfalls that were saved less than an hour ago
      */
-    fun findAvailableWaterfalls(): List<Waterfall> {
+    fun findAvailableWaterfalls(): CustomResult<WaterfallModel> {
         val timeStamp = Calendar.getInstance().time.time
-        return roomAppDatabase.getWaterfallDao().getAllAvailable(timeStamp)
+        val availableList =
+            roomAppDatabase.getWaterfallDao().getAllAvailable(timeStamp).convertListToArrayList()
+        return CustomResult.success(WaterfallModel(WaterfallType.REWARDED, availableList))
     }
 
 }

@@ -1,8 +1,10 @@
-package com.mra.admediatorsdk.core.middleware
+package com.mra.admediatorsdk.ad.middleware
 
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.mra.admediatorsdk.ad.AdMediator
+import com.mra.admediatorsdk.ad.manager.RequestAdDataState
 import com.mra.admediatorsdk.core.base.CustomResult
 import com.mra.admediatorsdk.data.enums.WaterfallName
 import com.mra.admediatorsdk.data.model.Waterfall
@@ -17,6 +19,7 @@ import ir.tapsell.sdk.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 
 /**
@@ -36,9 +39,23 @@ class ServerAdsMiddleware {
     /**
      * Set waterfalls into middleware for check availability
      */
-    private fun setMiddleware(waterfalls: ArrayList<Waterfall>) {
+    private fun setMiddleware(
+        listener: IAdMediatorRequestAdListener,
+        waterfalls: ArrayList<Waterfall>
+    ) {
         val middleware = CheckAdsMiddleware.newInstance(
-            AdsAvailableMiddleware(getAvailableWaterfalls(waterfalls)),
+            AdsAvailableMiddleware(getAvailableWaterfalls(waterfalls), callback = {
+                when (it) {
+                    is RequestAdDataState.AvailableAd -> {
+                        it.data.let {
+                            listener.onRequestAdResponse(it.adId, it.zoneId, it.waterfallName)
+                        }
+                    }
+                    is RequestAdDataState.NotAvailableAd -> {
+                        listener.onRequestAdFailure(it.messageError)
+                    }
+                }
+            }),
         )
         this.middleware = middleware
     }
@@ -65,11 +82,14 @@ class ServerAdsMiddleware {
         CoroutineScope(Dispatchers.IO).launch {
             mAdRepo.getAdNetworks().collect {
                 when (it.status) {
-                    CustomResult.Status.LOADING -> listener?.onInitializeStart()
+                    CustomResult.Status.LOADING ->
+                        withContext(Dispatchers.Main) { listener?.onInitializeStart() }
                     CustomResult.Status.SUCCESS -> {
                         it.data?.adNetworks?.let {
                             AdMediator.adNetworks = it
-                            listener?.onInitializeResponse()
+                            withContext(Dispatchers.Main) {
+                                listener?.onInitializeResponse()
+                            }
                         }
                     }
                     CustomResult.Status.ERROR -> {
@@ -77,7 +97,9 @@ class ServerAdsMiddleware {
                             "AdMediator",
                             "requestAd -> ${it.errorMessage} "
                         )
-                        listener?.onInitializeFailure(it.errorMessage)
+                        withContext(Dispatchers.Main) {
+                            listener?.onInitializeFailure(it.errorMessage)
+                        }
                     }
 
                 }
@@ -92,30 +114,7 @@ class ServerAdsMiddleware {
      *
      */
     fun requestAd(listener: IAdMediatorRequestAdListener) {
-
-        val availableDbWaterfall = mAdRepo.getAvailableRewardedWaterfall()
-        if (availableDbWaterfall.isNotEmpty())
-            checkAvailableDbWaterfall(availableDbWaterfall.convertListToArrayList(), listener)
-        else {
-            getRewardedWaterfalls(listener)
-        }
-
-    }
-
-    private fun checkAvailableDbWaterfall(
-        availableDbWaterfall: ArrayList<Waterfall>,
-        listener: IAdMediatorRequestAdListener
-    ) {
-        setMiddleware(availableDbWaterfall)
-        middleware?.check(
-            onAvailableAd = { adId, zoneId, waterfallName ->
-                listener.onRequestAdStart()
-                listener.onRequestAdResponse(adId, zoneId, waterfallName)
-            },
-            onNotAvailableAd = {
-                getRewardedWaterfalls(listener)
-            }
-        )
+        getRewardedWaterfalls(listener)
     }
 
 
@@ -126,21 +125,19 @@ class ServerAdsMiddleware {
         CoroutineScope(Dispatchers.IO).launch {
             mAdRepo.getRewardedWaterfall().collect {
                 when (it.status) {
-                    CustomResult.Status.LOADING -> listener.onRequestAdStart()
+                    CustomResult.Status.LOADING ->
+                        withContext(Dispatchers.Main) { listener.onRequestAdStart() }
                     CustomResult.Status.SUCCESS -> {
                         it.data?.waterfalls?.let {
-                            setMiddleware(it)
-                            middleware?.check(
-                                onAvailableAd = { adId, zoneId, waterfallName ->
-                                    listener.onRequestAdResponse(adId, zoneId, waterfallName)
-                                },
-                                onNotAvailableAd = {
-                                    listener.onRequestAdFailure("Not any ad available")
-                                }
-                            )
+                            setMiddleware(listener, it)
+                            middleware?.check()
                         }
                     }
-                    else -> listener.onRequestAdFailure(it.errorMessage)
+                    else -> {
+                        withContext(Dispatchers.Main) {
+                            listener.onRequestAdFailure(it.errorMessage)
+                        }
+                    }
                 }
             }
         }

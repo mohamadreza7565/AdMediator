@@ -10,7 +10,7 @@ interface IAdMediatorRequestAdListener {
 
     fun onRequestAdStart()
 
-    fun onRequestAdResponse(adId: String, zoneId: String,waterfallName: WaterfallName)
+    fun onRequestAdResponse(adId: String?, zoneId: String,waterfallName: WaterfallName)
 
     fun onRequestAdFailure(errorMessage: String?)
 

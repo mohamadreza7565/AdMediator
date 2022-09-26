@@ -1,6 +1,7 @@
-package com.mra.admediatorsdk.core.middleware
+package com.mra.admediatorsdk.ad
 
 import android.app.Activity
+import com.mra.admediatorsdk.ad.middleware.ServerAdsMiddleware
 import com.mra.admediatorsdk.data.enums.WaterfallName
 import com.mra.admediatorsdk.data.model.AdNetwork
 import com.mra.admediatorsdk.interfaces.IAdMediatorInitializer
