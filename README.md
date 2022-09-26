@@ -9,8 +9,7 @@
 # Design pattern used #
 * SingleTon
 * Chain of responsibility
-[![](https://medium.com/@catalinstefan/chain-of-responsibility-design-pattern-in-kotlin-b62f86be274f)]
-
+![alt text](https://medium.com/@catalinstefan/chain-of-responsibility-design-pattern-in-kotlin-b62f86be274f)
 
 * Repository
 
