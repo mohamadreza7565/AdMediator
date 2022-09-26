@@ -77,7 +77,7 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
 
             WaterfallName.TAPSELL.value -> requestTapsellAd(waterfall.id, callback)
 
-            else -> callback.invoke(false,null)
+            else -> callback.invoke(false, null)
         }
     }
 
@@ -119,7 +119,7 @@ class AdsAvailableMiddleware(private val waterfalls: ArrayList<Waterfall>) : Che
         callback: (available: Boolean, adId: String?) -> Unit
     ) {
 
-        if (UnityAds.isInitialized())
+        if (!UnityAds.isInitialized())
             UnityAds.load(zoneId, iUnityAdsLoadListener(callback))
         else
             callback.invoke(false, null)
