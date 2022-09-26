@@ -1,5 +1,9 @@
 # README #
 
+
+[![](https://jitpack.io/v/mohamadreza7565/AdMediator.svg)](https://jitpack.io/#mohamadreza7565/AdMediator)
+
+
 # What is this #
 * This SDK is an advertising interface that receives the list of available ads using API and displays the available ads from Tapsell and UnityAds.
 
