@@ -7,9 +7,7 @@ import com.mra.admediatorsdk.data.datasource.AdRemoteDataSource
 import com.mra.admediatorsdk.data.enums.WaterfallType
 import com.mra.admediatorsdk.data.model.WaterfallModel
 import com.mra.admediatorsdk.global.utils.convertListToArrayList
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 
 /**
  * Create by Mohammadreza Allahgholi
@@ -28,13 +26,15 @@ class AdRepo(
 
         val dbData = getDbAvailableWaterfall()
         if (dbData.data!!.waterfalls.isEmpty()) {
-            remoteDataSource.getRewardedWaterfall().collect { _result ->
-                if (_result.status == CustomResult.Status.SUCCESS)
-                    _result.data?.let {
-                        localDataSource.saveWaterfalls(it.waterfalls)
-                    }
-                Log.i(TAG, "get waterfalls from server")
-                emit(_result)
+            Log.i(TAG, "get waterfalls from server")
+            remoteDataSource.getRewardedWaterfall().map {
+                if (it.status == CustomResult.Status.SUCCESS) {
+                    localDataSource.saveWaterfalls(it.data!!.waterfalls)
+                } else {
+                    it
+                }
+            }.collect {
+                emit(it)
             }
         } else {
             Log.i(TAG, "get waterfalls from db")

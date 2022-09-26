@@ -25,8 +25,10 @@ class AdLocalDataSource(private val roomAppDatabase: RoomAppDatabase) {
      * and
      * save they into database
      */
-    fun saveWaterfalls(waterfalls: MutableList<Waterfall>) {
+    fun saveWaterfalls(waterfalls: MutableList<Waterfall>): CustomResult<WaterfallModel> {
 
+        val dao = roomAppDatabase.getWaterfallDao()
+        dao.nukeTable()
         waterfalls.forEach { waterfall ->
             val calendar = Calendar.getInstance()
 
@@ -35,8 +37,9 @@ class AdLocalDataSource(private val roomAppDatabase: RoomAppDatabase) {
             calendar.add(Calendar.HOUR_OF_DAY, +1)
             waterfall.expireTimestamp = calendar.time.time
 
-            roomAppDatabase.getWaterfallDao().insert(waterfall)
+            dao.insert(waterfall)
         }
+        return findAvailableWaterfalls()
     }
 
 
