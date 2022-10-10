@@ -79,17 +79,15 @@ class ServerAdsMiddleware {
      * Get list of adNetworks from api
      */
     fun getAdNetworks(listener: IAdMediatorInitializer? = null) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             mAdRepo.getAdNetworks().collect {
                 when (it.status) {
                     CustomResult.Status.LOADING ->
-                        withContext(Dispatchers.Main) { listener?.onInitializeStart() }
+                        listener?.onInitializeStart()
                     CustomResult.Status.SUCCESS -> {
                         it.data?.adNetworks?.let {
                             AdMediator.adNetworks = it
-                            withContext(Dispatchers.Main) {
                                 listener?.onInitializeResponse()
-                            }
                         }
                     }
                     CustomResult.Status.ERROR -> {
@@ -97,9 +95,7 @@ class ServerAdsMiddleware {
                             "AdMediator",
                             "requestAd -> ${it.errorMessage} "
                         )
-                        withContext(Dispatchers.Main) {
                             listener?.onInitializeFailure(it.errorMessage)
-                        }
                     }
 
                 }
@@ -122,11 +118,11 @@ class ServerAdsMiddleware {
      * Get rewarded waterfalls from api
      */
     private fun getRewardedWaterfalls(listener: IAdMediatorRequestAdListener) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             mAdRepo.getRewardedWaterfall().collect {
                 when (it.status) {
                     CustomResult.Status.LOADING ->
-                        withContext(Dispatchers.Main) { listener.onRequestAdStart() }
+                        listener.onRequestAdStart()
                     CustomResult.Status.SUCCESS -> {
                         it.data?.waterfalls?.let {
                             setMiddleware(listener, it)
@@ -134,9 +130,7 @@ class ServerAdsMiddleware {
                         }
                     }
                     else -> {
-                        withContext(Dispatchers.Main) {
                             listener.onRequestAdFailure(it.errorMessage)
-                        }
                     }
                 }
             }
